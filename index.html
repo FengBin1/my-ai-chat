@@ -3,522 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI 聊天助手</title>
+    <title>AI 对话测试</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .chat-container {
-            width: 100%;
-            max-width: 800px;
-            height: 90vh;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        .chat-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px;
-            text-align: center;
-            border-radius: 20px 20px 0 0;
-        }
-
-        .chat-header h1 {
-            font-size: 1.8em;
-            margin-bottom: 5px;
-        }
-
-        .chat-header p {
-            opacity: 0.9;
-            font-size: 0.9em;
-        }
-
-        .chat-messages {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-            background: #f8f9fa;
-        }
-
-        .message {
-            margin-bottom: 20px;
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-            animation: slideIn 0.3s ease-out;
-        }
-
-        .message.user {
-            flex-direction: row-reverse;
-        }
-
-        .message-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            color: white;
-            flex-shrink: 0;
-        }
-
-        .message.user .message-avatar {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-
-        .message.assistant .message-avatar {
-            background: linear-gradient(135deg, #20bf6b 0%, #01a3a4 100%);
-        }
-
-        .message-content {
-            max-width: 70%;
-            padding: 15px 20px;
-            border-radius: 18px;
-            font-size: 14px;
-            line-height: 1.5;
-            word-wrap: break-word;
-        }
-
-        .message.user .message-content {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-bottom-right-radius: 4px;
-        }
-
-        .message.assistant .message-content {
-            background: white;
-            color: #333;
-            border: 1px solid #e1e8ed;
-            border-bottom-left-radius: 4px;
-        }
-
-        .chat-input-container {
-            padding: 20px;
-            background: white;
-            border-top: 1px solid #e1e8ed;
-            border-radius: 0 0 20px 20px;
-        }
-
-        .chat-input-form {
-            display: flex;
-            gap: 10px;
-            align-items: flex-end;
-        }
-
-        .chat-input {
-            flex: 1;
-            min-height: 44px;
-            max-height: 120px;
-            padding: 12px 16px;
-            border: 2px solid #e1e8ed;
-            border-radius: 22px;
-            font-size: 14px;
-            resize: none;
-            outline: none;
-            transition: border-color 0.3s ease;
-            font-family: inherit;
-        }
-
-        .chat-input:focus {
-            border-color: #667eea;
-        }
-
-        .send-button {
-            width: 44px;
-            height: 44px;
-            border: none;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-            flex-shrink: 0;
-        }
-
-        .send-button:hover {
-            transform: scale(1.1);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
-
-        .send-button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .loading {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: #666;
-            font-style: italic;
-        }
-
-        .loading-dots {
-            display: flex;
-            gap: 4px;
-        }
-
-        .loading-dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: #667eea;
-            animation: bounce 1.4s infinite ease-in-out;
-        }
-
-        .loading-dot:nth-child(1) { animation-delay: -0.32s; }
-        .loading-dot:nth-child(2) { animation-delay: -0.16s; }
-
-        @keyframes bounce {
-            0%, 80%, 100% { transform: scale(0); }
-            40% { transform: scale(1); }
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .error-message {
-            background: #fee2e2;
-            color: #dc2626;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            border-left: 4px solid #dc2626;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: #666;
-        }
-
-        .empty-state h3 {
-            margin-bottom: 10px;
-            color: #333;
-        }
-
-        .empty-state p {
-            margin-bottom: 20px;
-            line-height: 1.6;
-        }
-
-        .suggested-questions {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            max-width: 400px;
-            margin: 0 auto;
-        }
-
-        .suggested-question {
-            background: white;
-            border: 2px solid #e1e8ed;
-            border-radius: 12px;
-            padding: 12px 16px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 14px;
-        }
-
-        .suggested-question:hover {
-            border-color: #667eea;
-            background: #f8faff;
-        }
-
-        /* 响应式设计 */
-        @media (max-width: 768px) {
-            body {
-                padding: 10px;
-            }
-            
-            .chat-container {
-                height: 100vh;
-                border-radius: 0;
-            }
-            
-            .chat-header {
-                border-radius: 0;
-            }
-            
-            .chat-input-container {
-                border-radius: 0;
-            }
-            
-            .message-content {
-                max-width: 85%;
-            }
-        }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; background-color: #f4f4f9; color: #333; max-width: 800px; margin: 40px auto; padding: 20px; }
+        h1 { color: #0b2d48; }
+        button { background-color: #007bff; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-size: 16px; cursor: pointer; transition: background-color 0.3s; }
+        button:hover { background-color: #0056b3; }
+        button:disabled { background-color: #cccccc; cursor: not-allowed; }
+        #response-container { margin-top: 20px; padding: 15px; background-color: #ffffff; border-radius: 8px; white-space: pre-wrap; word-wrap: break-word; font-family: "Courier New", Courier, monospace; min-height: 100px; border: 1px solid #ddd;}
+        .loader { margin: 20px auto; border: 5px solid #f3f3f3; border-radius: 50%; border-top: 5px solid #3498db; width: 40px; height: 40px; animation: spin 2s linear infinite; display: none; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
-    <div class="chat-container">
-        <div class="chat-header">
-            <h1>🤖 AI 聊天助手</h1>
-            <p>基于 Qwen3-8B 模型 | 支持中文对话</p>
-        </div>
 
-        <div class="chat-messages" id="chatMessages">
-            <div class="empty-state">
-                <h3>👋 你好！我是你的 AI 助手</h3>
-                <p>我可以帮助你回答问题、进行对话、提供建议等。试试下面的问题或者直接输入你想问的内容：</p>
-                <div class="suggested-questions">
-                    <div class="suggested-question" onclick="sendSuggestedQuestion('你好，请介绍一下自己')">
-                        👋 你好，请介绍一下自己
-                    </div>
-                    <div class="suggested-question" onclick="sendSuggestedQuestion('请给我讲一个有趣的故事')">
-                        📖 请给我讲一个有趣的故事
-                    </div>
-                    <div class="suggested-question" onclick="sendSuggestedQuestion('如何学习编程？')">
-                        💻 如何学习编程？
-                    </div>
-                    <div class="suggested-question" onclick="sendSuggestedQuestion('今天天气怎么样？')">
-                        🌤️ 今天天气怎么样？
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="chat-input-container">
-            <form class="chat-input-form" onsubmit="sendMessage(event)">
-                <textarea 
-                    class="chat-input" 
-                    id="messageInput" 
-                    placeholder="输入你的消息..." 
-                    rows="1"
-                    onkeydown="handleKeyDown(event)"
-                    oninput="autoResize(this)"
-                ></textarea>
-                <button type="submit" class="send-button" id="sendButton">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M22 2L11 13"></path>
-                        <path d="M22 2L15 22L11 13L2 9L22 2Z"></path>
-                    </svg>
-                </button>
-            </form>
-        </div>
-    </div>
+    <h1>与 AI 对话 🤖</h1>
+    <p>点击下面的按钮向 Qwen/Qwen3-8B 模型发送 "你好"。结果将显示在下方。</p>
+    
+    <button id="callApiBtn">发送请求</button>
+    <div class="loader" id="loader"></div>
+    
+    <h3>API 响应:</h3>
+    <pre id="response-container">等待请求...</pre>
 
     <script>
-        let messages = [];
-        let isLoading = false;
+        const callApiBtn = document.getElementById('callApiBtn');
+        const responseContainer = document.getElementById('response-container');
+        const loader = document.getElementById('loader');
 
-        async function sendMessage(event) {
-            event.preventDefault();
-            
-            const messageInput = document.getElementById('messageInput');
-            const message = messageInput.value.trim();
-            
-            if (!message || isLoading) return;
-            
-            // 添加用户消息
-            addMessage('user', message);
-            messageInput.value = '';
-            autoResize(messageInput);
-            
-            // 隐藏空状态
-            hideEmptyState();
-            
-            // 显示加载状态
-            showLoading();
-            
-            try {
-                const response = await callAPI(message);
-                hideLoading();
-                
-                if (response.choices && response.choices[0] && response.choices[0].message) {
-                    addMessage('assistant', response.choices[0].message.content);
-                } else {
-                    throw new Error('响应格式不正确');
-                }
-            } catch (error) {
-                hideLoading();
-                addErrorMessage('抱歉，发生了错误：' + error.message);
-            }
-        }
+        callApiBtn.addEventListener('click', () => {
+            // 禁用按钮并显示加载动画
+            callApiBtn.disabled = true;
+            loader.style.display = 'block';
+            responseContainer.textContent = '正在请求...';
 
-        async function callAPI(userMessage) {
-            // 构建消息历史
-            const apiMessages = messages.map(msg => ({
-                role: msg.role,
-                content: msg.content
-            }));
-
-            // 使用 Cloudflare Worker 代理
-            // 你需要替换为你的 Worker URL
-            const WORKER_URL = 'https://your-worker-name.your-subdomain.workers.dev';
-
-            const options = {
+            // 请求我们自己的后端 (Cloudflare Worker)
+            fetch('/api/chat', { // 注意这里的路径是相对路径
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
+                // 你可以动态地改变这里的 body 内容
                 body: JSON.stringify({
-                    "model": "Qwen/Qwen3-8B",
-                    "max_tokens": 512,
-                    "enable_thinking": true,
-                    "thinking_budget": 4096,
-                    "min_p": 0.05,
-                    "temperature": 0.7,
-                    "top_p": 0.7,
-                    "top_k": 50,
-                    "frequency_penalty": 0.5,
-                    "n": 1,
-                    "stream": false,
-                    "stop": [],
-                    "messages": apiMessages,
-                    "response_format": {"type": "text"}
+                    model: "Qwen/Qwen3-8B",
+                    messages: [{"role":"user","content":"你好"}]
                 })
-            };
-
-            const response = await fetch(WORKER_URL, options);
-            
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-            }
-            
-            return await response.json();
-        }
-
-        function addMessage(role, content) {
-            messages.push({ role, content });
-            
-            const chatMessages = document.getElementById('chatMessages');
-            
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${role}`;
-            
-            const avatar = document.createElement('div');
-            avatar.className = 'message-avatar';
-            avatar.textContent = role === 'user' ? '你' : 'AI';
-            
-            const messageContent = document.createElement('div');
-            messageContent.className = 'message-content';
-            messageContent.textContent = content;
-            
-            messageDiv.appendChild(avatar);
-            messageDiv.appendChild(messageContent);
-            
-            chatMessages.appendChild(messageDiv);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
-
-        function addErrorMessage(message) {
-            const chatMessages = document.getElementById('chatMessages');
-            
-            const errorDiv = document.createElement('div');
-            errorDiv.className = 'error-message';
-            errorDiv.textContent = message;
-            
-            chatMessages.appendChild(errorDiv);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
-
-        function showLoading() {
-            isLoading = true;
-            const sendButton = document.getElementById('sendButton');
-            sendButton.disabled = true;
-            
-            const chatMessages = document.getElementById('chatMessages');
-            
-            const loadingDiv = document.createElement('div');
-            loadingDiv.className = 'message assistant';
-            loadingDiv.id = 'loadingMessage';
-            
-            const avatar = document.createElement('div');
-            avatar.className = 'message-avatar';
-            avatar.textContent = 'AI';
-            
-            const loadingContent = document.createElement('div');
-            loadingContent.className = 'message-content loading';
-            loadingContent.innerHTML = `
-                正在思考中...
-                <div class="loading-dots">
-                    <div class="loading-dot"></div>
-                    <div class="loading-dot"></div>
-                    <div class="loading-dot"></div>
-                </div>
-            `;
-            
-            loadingDiv.appendChild(avatar);
-            loadingDiv.appendChild(loadingContent);
-            
-            chatMessages.appendChild(loadingDiv);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
-
-        function hideLoading() {
-            isLoading = false;
-            const sendButton = document.getElementById('sendButton');
-            sendButton.disabled = false;
-            
-            const loadingMessage = document.getElementById('loadingMessage');
-            if (loadingMessage) {
-                loadingMessage.remove();
-            }
-        }
-
-        function hideEmptyState() {
-            const emptyState = document.querySelector('.empty-state');
-            if (emptyState) {
-                emptyState.style.display = 'none';
-            }
-        }
-
-        function sendSuggestedQuestion(question) {
-            const messageInput = document.getElementById('messageInput');
-            messageInput.value = question;
-            sendMessage(new Event('submit'));
-        }
-
-        function handleKeyDown(event) {
-            if (event.key === 'Enter' && !event.shiftKey) {
-                event.preventDefault();
-                sendMessage(event);
-            }
-        }
-
-        function autoResize(textarea) {
-            textarea.style.height = 'auto';
-            textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
-        }
-
-        // 页面加载完成后聚焦输入框
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('messageInput').focus();
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP 错误! 状态: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                // 将格式化的 JSON 显示在页面上
+                responseContainer.textContent = JSON.stringify(data, null, 2);
+            })
+            .catch(err => {
+                console.error('Fetch 错误:', err);
+                responseContainer.textContent = '请求失败，请查看浏览器控制台获取更多信息。\n\n' + err;
+            })
+            .finally(() => {
+                // 恢复按钮并隐藏加载动画
+                callApiBtn.disabled = false;
+                loader.style.display = 'none';
+            });
         });
     </script>
+
 </body>
 </html>
